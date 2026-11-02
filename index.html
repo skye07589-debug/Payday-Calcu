@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Payday calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#F0EFEA;--sf:#fff;--sf2:#F0EFEA;--ink:#111;--mute:#5C5C57;--line:#E3E2DB;--hero:#2447FF;--hm:#C9D3FF;--ac:#2447FF;--amt:#2447FF;--neg:#C2261B;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);-webkit-text-size-adjust:100%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C0C0E;--sf:#18181B;--sf2:#26262B;--ink:#F4F4F1;--mute:#A1A19A;--line:#2A2A2F;--ac:#8DA2FF;--amt:#8DA2FF;--neg:#FF8A80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0C0C0E;--sf:#18181B;--sf2:#26262B;--ink:#F4F4F1;--mute:#A1A19A;--line:#2A2A2F;--ac:#8DA2FF;--amt:#8DA2FF;--neg:#FF8A80;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 56px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hero);z-index:20}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+svg{display:block}
+.hero{background:var(--hero);color:#fff;padding:18px 16px 26px}
+.in{max-width:960px;margin:0 auto}
+.pay{display:flex;align-items:center;gap:8px}
+.hero button{background:rgba(255,255,255,.18);color:#fff}
+.chip{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:44px;border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:4px 10px;font-size:.8125rem;color:var(--hm)}
+.chip b{color:#fff;font-weight:600;font-size:.9375rem}
+.lab{margin:26px 0 0;color:var(--hm);font-size:.9375rem}
+.big{margin:0;font-weight:800;font-size:clamp(3rem,15vw,5rem);line-height:1;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.cur{font-size:.45em;font-weight:600;color:var(--hm);vertical-align:.9em;margin-right:6px}
+.track{height:10px;border-radius:5px;background:rgba(255,255,255,.25);overflow:hidden;margin:20px 0 8px}
+.track i{display:block;height:100%;background:#fff;transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.tl{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:.875rem;color:var(--hm);font-variant-numeric:tabular-nums}
+.tl b{color:#fff;font-weight:600}
+.mini{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:19;background:var(--hero);color:#fff;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:none;justify-content:space-between;align-items:baseline}
+.mini.on{display:flex}
+.mini span{color:var(--hm);font-size:.9375rem}
+.mini b{font-size:1.375rem;font-weight:800;font-variant-numeric:tabular-nums}
+.wrap{max-width:960px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-areas:"a" "b" "c"}
+.a{grid-area:a}.b{grid-area:b}.c{grid-area:c}
+@media(min-width:860px){.wrap{grid-template-areas:"a b" "c b";grid-template-columns:1fr 1fr;gap:20px 24px;align-items:start}.b{position:sticky;top:16px}}
+.card{background:var(--sf);border-radius:16px;padding:16px}
+h2{margin:0 0 12px;font-size:1.125rem;font-weight:800}
+button{font:inherit;font-weight:600;color:var(--ink);background:var(--sf2);border:0;border-radius:12px;min-height:44px;min-width:44px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;justify-content:center;transition:opacity .12s}
+button:active{opacity:.6}
+input:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.hero button:focus-visible{outline-color:#fff}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--sf2);border-radius:14px;padding:4px;margin-bottom:6px}
+.seg button{background:transparent;padding:0 2px;font-size:.875rem;white-space:nowrap;color:var(--mute);border-radius:10px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--sf)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:8px 0;border-top:1px solid var(--line)}
+.row.f{border-top:0}
+.row>label{flex:1;min-width:0;font-size:1rem;font-weight:600;line-height:1.3}
+.row small,.blk small{display:block;color:var(--mute);font-size:.8125rem;font-weight:400;line-height:1.35}
+.st{display:flex;gap:6px;align-items:center}
+.st input,.pre input,.row input[type=number],.row input[type=date]{font:700 1.0625rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--ink);background:var(--sf2);border:0;border-radius:12px;min-height:44px;text-align:center;font-variant-numeric:tabular-nums;min-width:0}
+.st input{width:68px;padding:0 4px}
+.pre{display:flex;align-items:center;gap:8px}
+.pre span{font-weight:700;color:var(--mute)}
+.pre input{width:112px;padding:0 10px;text-align:right}
+.row>input[type=number]{width:120px;padding:0 12px;text-align:right}
+.row input[type=date]{width:152px;padding:0 10px;text-align:left}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}.g2 label{display:grid;gap:4px;font-size:.8125rem;font-weight:600;color:var(--mute)}input[type=time]{font:700 1.0625rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--ink);background:var(--sf2);border:0;border-radius:12px;min-height:44px;padding:0 10px;width:100%;min-width:0;font-variant-numeric:tabular-nums}.hint{margin:6px 0 10px;font-size:.8125rem;color:var(--mute)}
+.blk{padding:12px 0 4px;border-top:1px solid var(--line)}
+.blk>.t{display:block;font-weight:600;margin-bottom:10px}
+.led{width:100%;border-collapse:collapse}
+.led th,.led td{padding:10px 0;border-top:1px solid var(--line);font-weight:400;font-size:.9375rem;text-align:left;vertical-align:top}
+.led th{position:relative}
+.led td{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;padding-left:12px}
+.led .sh th{border:0;padding:16px 0 2px;color:var(--mute);font-size:.8125rem;font-weight:600}
+.led tbody:first-of-type .sh th{padding-top:0}
+.led .sum th,.led .sum td{font-weight:800}
+.led .net th,.led .net td{font-size:1.25rem;font-weight:800;color:var(--amt);border-top:2px solid var(--ink);padding-top:12px}
+.bar{display:block;height:3px;border-radius:2px;background:var(--neg);opacity:.55;margin-top:7px}
+.note{color:var(--mute);font-size:.8125rem;margin:12px 0 0}
+details summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+details summary::-webkit-details-marker{display:none}
+summary b{display:block;font-weight:800;font-size:1.125rem}
+summary small{display:block;color:var(--mute);font-size:.8125rem}
+summary svg{transition:transform .15s}
+details[open] summary svg{transform:rotate(180deg)}
+details[open] summary{margin-bottom:8px}
+.txt{margin-top:12px;background:transparent;color:var(--amt);font-weight:600;padding:0 4px;text-decoration:underline;text-underline-offset:3px}
+:root{--ease:cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hero .in>*{animation:rise .55s var(--ease) both}
+.hero .in>:nth-child(2){animation-delay:.06s}.hero .in>:nth-child(3){animation-delay:.1s}.hero .in>:nth-child(4){animation-delay:.18s}.hero .in>:nth-child(5){animation-delay:.22s}
+.card{animation:rise .55s var(--ease) both}.card.b{animation-delay:.1s}.card.c{animation-delay:.18s}
+.mini.on{animation:drop .22s var(--ease)}
+.boot .bar{transform-origin:left;animation:grow .6s var(--ease) .35s both}
+details[open]>:not(summary){animation:fade .25s var(--ease)}
+button{transition:opacity .12s,transform .12s,background-color .18s,color .18s}
+button:active{transform:scale(.95)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="mi" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="pl" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="cl" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="cr" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<header class="hero" id="hero"><div class="in">
+<div class="pay"><button type="button" id="pp" aria-label="Previous payday"><svg width="20" height="20"><use href="#cl"/></svg></button><div class="chip" id="pdc" aria-live="polite"><b id="pdd"></b><span id="pds"></span></div><button type="button" id="pn" aria-label="Next payday"><svg width="20" height="20"><use href="#cr"/></svg></button></div>
+<p class="lab">Take-home this payday</p>
+<p class="big" id="net"></p>
+<div class="track" role="img" aria-label="Share of gross pay you keep"><i id="kbar"></i></div>
+<div class="tl"><span>Kept <b id="g3"></b> of <b id="g1"></b> gross</span><span><b id="g2"></b> out</span></div>
+</div></header>
+<div class="mini" id="mini" aria-hidden="true"><span>Take-home</span><b id="net3"></b></div>
+
+<main class="wrap">
+<section class="card a">
+<h2>This payday</h2>
+<div class="g2"><label for="st">Shift starts<input id="st" type="time"></label><label for="en">Shift ends<input id="en" type="time"></label></div>
+<div class="row f"><label for="br">Unpaid break (hours)</label><input id="br" type="number" inputmode="decimal" step="any"></div>
+<p class="hint" id="shsum"></p>
+<div class="seg" data-seg="shift" role="group" aria-label="Night hours"><button type="button" data-v="auto">From schedule</button><button type="button" data-v="cu">Custom</button></div>
+<div class="row"><label for="reg">Regular hours</label><div class="st" data-f="reg" data-s="1"><button type="button" aria-label="Decrease regular hours"><svg width="20" height="20"><use href="#mi"/></svg></button><input id="reg" type="number" inputmode="decimal" step="any"><button type="button" aria-label="Increase regular hours"><svg width="20" height="20"><use href="#pl"/></svg></button></div></div>
+<div class="row"><label for="night">Night diff hours<small>10PM–6AM</small></label><div class="st" data-f="night" data-s="0.5"><button type="button" aria-label="Decrease night hours"><svg width="20" height="20"><use href="#mi"/></svg></button><input id="night" type="number" inputmode="decimal" step="any"><button type="button" aria-label="Increase night hours"><svg width="20" height="20"><use href="#pl"/></svg></button></div></div>
+<div class="row"><label for="ot">Overtime hours</label><div class="st" data-f="ot" data-s="0.25"><button type="button" aria-label="Decrease overtime hours"><svg width="20" height="20"><use href="#mi"/></svg></button><input id="ot" type="number" inputmode="decimal" step="any"><button type="button" aria-label="Increase overtime hours"><svg width="20" height="20"><use href="#pl"/></svg></button></div></div>
+<div class="row"><label for="pto">PTO hours</label><div class="st" data-f="pto" data-s="1"><button type="button" aria-label="Decrease PTO hours"><svg width="20" height="20"><use href="#mi"/></svg></button><input id="pto" type="number" inputmode="decimal" step="any"><button type="button" aria-label="Increase PTO hours"><svg width="20" height="20"><use href="#pl"/></svg></button></div></div>
+<div class="row"><label for="days">Days worked<small>Allowances are paid per day</small></label><div class="st" data-f="days" data-s="1"><button type="button" aria-label="Decrease days worked"><svg width="20" height="20"><use href="#mi"/></svg></button><input id="days" type="number" inputmode="decimal" step="any"><button type="button" aria-label="Increase days worked"><svg width="20" height="20"><use href="#pl"/></svg></button></div></div>
+<div class="row"><label for="oe">Holiday pay or bonus</label><div class="pre"><span>₱</span><input id="oe" type="number" inputmode="decimal" step="any"></div></div>
+<div class="row"><label for="other">Extra deduction<small>One-off, this payday only</small></label><div class="pre"><span>₱</span><input id="other" type="number" inputmode="decimal" step="any"></div></div>
+</section>
+
+<section class="card b">
+<h2>Payslip</h2>
+<table class="led"><caption class="sr">Payslip breakdown</caption>
+<tbody><tr class="sh"><th colspan="2" scope="colgroup">Earnings</th></tr></tbody><tbody id="earn"></tbody>
+<tbody><tr class="sum"><th scope="row">Gross pay</th><td id="gross"></td></tr><tr class="sh"><th colspan="2" scope="colgroup">Deductions</th></tr></tbody><tbody id="ded"></tbody>
+<tbody><tr class="sum"><th scope="row">Total deductions</th><td id="tded"></td></tr><tr class="net"><th scope="row">Net pay</th><td id="net2"></td></tr></tbody></table>
+<p class="note" id="avg"></p>
+</section>
+
+<section class="card c">
+<details open>
+<summary><span><b>Pay settings</b><small id="sum"></small></span><svg width="20" height="20" aria-hidden="true"><use href="#cv"/></svg></summary>
+<div class="row f"><label for="basic">Monthly basic pay (₱)</label><input id="basic" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="rate">Hourly rate (₱)<small>Basic pay × 12 ÷ 2,088 hours</small></label><input id="rate" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="comp">Complexity allowance (₱/month)</label><input id="comp" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="rice">Rice allowance (₱/month)</label><input id="rice" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="otm">Overtime rate (%)</label><input id="otm" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="ndp">Night differential (%)<small>Check your payslip: it is usually 10% or 15%</small></label><input id="ndp" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="loan">Salary loan (₱)<small>Taken every payday until the last deduction date below</small></label><input id="loan" type="number" inputmode="decimal" step="any"></div>
+<div class="row"><label for="loanEnd">Last loan deduction<small>No loan is taken after this payday</small></label><input id="loanEnd" type="date"></div>
+<div class="row"><label for="anchor">Payday pattern starts<small>Paydays repeat every 14 days from this date</small></label><input id="anchor" type="date"></div>
+<div class="blk"><span class="t" id="ctl">SSS, PhilHealth and Pag-IBIG on this payday<small>Follows the payslip pattern: SSS every payday, PhilHealth and Pag-IBIG on the first payday of the month, salary loan every payday.</small></span>
+<div class="seg" data-seg="cmode" role="group" aria-labelledby="ctl"><button type="button" data-v="auto">Payslip pattern</button><button type="button" data-v="none">None</button></div></div>
+<p class="note">Built from one Concentrix employee’s Jul–Oct 2026 payslips, so treat the results as an estimate. SSS is 5% of that payday’s gross rounded to the nearest ₱500, and the slips were sometimes ₱25 higher. PhilHealth (2.5% of basic) and Pag-IBIG (2% up to ₱200 a month) are taken on the first payday of the month; the first-payday amounts are worked out from year-to-date totals, not seen directly. Allowances are prorated per day worked. Tax has been ₱0 so far. Your payslip is the final word.</p>
+<button class="txt" id="reset" type="button">Reset all values</button>
+</details>
+</section>
+</main>
+
+<script>
+var KEY="payday-calc-shared-v1",NUM=["basic","rate","reg","night","ot","otm","pto","comp","rice","other","ndp","days","loan","oe","br"];
+var D={basic:0,rate:0,reg:80,night:0,ot:0,otm:125,pto:0,comp:0,rice:0,other:0,oe:0,loan:0,loanEnd:"2026-12-18",ndp:10,days:10,cmode:"auto",shift:"auto",st:"09:00",en:"18:00",br:1,anchor:"2026-11-06"};
+var S=Object.assign({},D);
+try{var sv=localStorage.getItem(KEY);if(sv)S=Object.assign({},D,JSON.parse(sv));}catch(e){}
+var $=function(i){return document.getElementById(i)};
+var r2=function(x){return Math.round(x*100)/100};
+var money=function(x){return(x<0?"−":"")+"₱"+Math.abs(x).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2})};
+var clamp=function(x,a,b){return Math.min(b,Math.max(a,x))};
+function tax(a){if(a<=250000)return 0;if(a<=400000)return(a-250000)*.15;if(a<=800000)return 22500+(a-400000)*.2;if(a<=2000000)return 102500+(a-800000)*.25;if(a<=8000000)return 402500+(a-2000000)*.3;return 2202500+(a-8000000)*.35}
+var W=12096e5,sel=null,PK=1,PF=["reg","night","ot","pto","other","oe","days","shift"];
+function anchorMs(){var p=(S.anchor||D.anchor).split("-");return Date.UTC(+p[0],p[1]-1,+p[2])}
+function nextIdx(){var n=new Date();return Math.ceil((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-anchorMs())/W)}
+function idx(){return sel===null?nextIdx():sel}
+function dateOf(i){return new Date(anchorMs()+i*W)}
+function key(){return dateOf(idx()).toISOString().slice(0,10)}
+function stash(){var o={};PF.forEach(function(f){o[f]=S[f]});S.log[key()]=o}
+function load(){var o=S.log[key()];if(o)PF.forEach(function(f){S[f]=o[f]});if(S.shift!=="cu")S.shift="auto"}
+function showPay(){
+var i=idx(),d=dateOf(i),m=d.getUTCMonth(),k=1,c,j;
+for(j=i-1;dateOf(j).getUTCMonth()===m;j--)k++;
+c=k;for(j=i+1;dateOf(j).getUTCMonth()===m;j++)c++;
+PK=k;var ni=nextIdx(),st=i<ni?"Past payday":i===ni?"Next payday":"Upcoming payday";
+$("pdd").textContent=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric",timeZone:"UTC"});
+$("pds").textContent=st+", "+k+" of "+c+" this month";
+}
+function go(n){stash();sel=idx()+n;load();showPay();paint();calc();["pdd","pds"].forEach(function(i){fx($(i),[{transform:"translateX("+n*18+"px)",opacity:0},{transform:"none",opacity:1}],240)})}
+function paint(){
+NUM.forEach(function(k){if($(k)!==document.activeElement)$(k).value=S[k]});$("anchor").value=S.anchor;$("loanEnd").value=S.loanEnd;$("st").value=S.st;$("en").value=S.en;shiftSum();
+document.querySelectorAll(".seg").forEach(function(g){var k=g.getAttribute("data-seg");g.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-v")===S[k])})});
+}
+function calc(){
+var rate=S.rate,m=12/26;
+var E=[["Regular pay, "+S.reg+" hrs",S.reg*rate],["Night differential "+S.ndp+"%, "+S.night+" hrs",S.night*rate*S.ndp/100],["Overtime at "+S.otm+"%, "+S.ot+" hrs",S.ot*rate*S.otm/100],["PTO, "+S.pto+" hrs",S.pto*rate],["Complexity allowance, "+S.days+" days",S.comp*12/261*S.days],["Rice allowance, "+S.days+" days",S.rice*12/261*S.days],["Holiday pay or bonus",S.oe]].map(function(x){return[x[0],r2(x[1])]}).filter(function(x){return x[1]!==0});
+var gross=r2(E.reduce(function(a,x){return a+x[1]},0));
+var base=S.basic+(S.incl?S.comp+S.rice:0);
+var msc=clamp(Math.round(gross/500)*500,5000,35000);
+var sssP=msc*.05,phM=clamp(S.basic,10000,100000)*.025,pagM=Math.min(S.basic,10000)*.02;
+var on=S.cmode!=="none"&&gross>0,sss=on?sssP:0,ph=on&&PK===1?phM:0,pag=on&&PK===1?Math.min(pagM,gross*.02):0;
+var annual=(gross-Math.min(S.rice,2000)*12/261*S.days)*26-(sssP*26+phM*12+pagM*12);
+var tx=r2(tax(annual)/26);
+var Dd=[["SSS",r2(sss)],["PhilHealth",r2(ph)],["Pag-IBIG",r2(pag)],["Salary loan",r2(key()<=S.loanEnd?S.loan:0)],["Withholding tax, estimate",tx],["Other deduction",r2(S.other)]].filter(function(x){return x[1]!==0});
+var tded=r2(Dd.reduce(function(a,x){return a+x[1]},0));
+var net=r2(gross-tded);
+var mx=Math.max.apply(null,Dd.map(function(x){return x[1]}).concat([1]));var tr=function(a,neg){return a.map(function(x){return'<tr><th scope="row">'+x[0]+(neg?'<i class="bar" style="width:'+Math.round(x[1]/mx*100)+'%"></i>':"")+"</th><td>"+(neg?"−":"")+money(x[1])+"</td></tr>"}).join("")};
+$("earn").innerHTML=tr(E,false);$("ded").innerHTML=tr(Dd,true);
+$("gross").textContent=money(gross);$("tded").textContent="−"+money(tded);
+countTo(net);$("net2").textContent=money(net);$("net3").textContent=money(net);
+$("kbar").style.transform="scaleX("+(gross>0?clamp(net/gross,0,1):0)+")";$("g1").textContent=money(gross);$("g2").textContent="−"+money(tded);$("g3").textContent=(gross>0?Math.round(clamp(net/gross*100,0,100)):0)+"%";
+$("avg").textContent="Averaged over a year, this payday is about "+money(r2(net*26/12))+" a month. Estimated taxable income: "+money(r2(Math.max(0,annual)))+" a year.";
+$("sum").textContent=money(S.basic)+" basic, "+money(S.rate)+" an hour";
+}
+var cur=0,raf;
+function countTo(v){var st=cur,t0=null,el=$("net");cancelAnimationFrame(raf);
+var draw=function(x){el.innerHTML=(x<0?"−":"")+'<span class="cur">₱</span>'+Math.abs(x).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2})};
+if(matchMedia("(prefers-reduced-motion:reduce)").matches||Math.abs(v-st)<0.005){cur=v;draw(v);return}
+var step=function(t){if(t0===null)t0=t;var p=Math.min(1,(t-t0)/450);cur=st+(v-st)*(1-Math.pow(1-p,3));draw(cur);if(p<1)raf=requestAnimationFrame(step);else{cur=v;draw(v)}};raf=requestAnimationFrame(step)}
+var RM=matchMedia("(prefers-reduced-motion:reduce)").matches;function fx(el,kf,ms){if(RM||!el||!el.animate)return;el.animate(kf,{duration:ms,easing:"cubic-bezier(.2,.8,.2,1)"})}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+function save(){stash();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function tm(s){var p=(s||"0:0").split(":");return(+p[0]||0)*60+(+p[1]||0)}
+function nightPer(){var a=tm(S.st),b=tm(S.en);if(b<=a)b+=1440;var paid=Math.max(0,(b-a)/60-S.br),ov=0;
+[[0,360],[1320,1800],[2760,3240]].forEach(function(w){ov+=Math.max(0,Math.min(b,w[1])-Math.max(a,w[0]))});
+ov=ov/60;return{paid:paid,night:Math.min(ov,paid)}}
+function shiftSum(){var p=nightPer();$("shsum").textContent=r2(p.paid)+" paid hours a shift, "+r2(p.night)+" of them at night differential"}
+function autoNight(){if(S.shift!=="cu"){var p=nightPer();S.night=r2(p.paid>0?S.reg*p.night/p.paid:0)}}
+function setField(k,v,fromInput){
+S[k]=v;
+if(!fromInput)$(k).value=v;
+if(k==="basic"){S.rate=r2(S.basic*12/2088);$("rate").value=S.rate}
+if(k==="rate"){S.basic=r2(S.rate*2088/12);$("basic").value=S.basic}
+if(k==="reg"||k==="br"){autoNight();$("night").value=S.night}
+if(k==="night")S.shift="cu";
+paint();save();calc();
+}
+NUM.forEach(function(k){var el=$(k);
+el.addEventListener("input",function(){setField(k,parseFloat(el.value)||0,true)});
+el.addEventListener("focus",function(){el.select()});el.setAttribute("enterkeyhint","done");el.addEventListener("keydown",function(e){if(e.key==="Enter")el.blur()});
+});
+document.querySelectorAll(".st").forEach(function(w){var k=w.getAttribute("data-f"),s=parseFloat(w.getAttribute("data-s")),b=w.querySelectorAll("button");
+b[0].addEventListener("click",function(){buzz();fx($(k),[{transform:"translateY(-6px)",opacity:.4},{transform:"none",opacity:1}],170);setField(k,r2(Math.max(0,S[k]-s)))});
+b[1].addEventListener("click",function(){buzz();fx($(k),[{transform:"translateY(6px)",opacity:.4},{transform:"none",opacity:1}],170);setField(k,r2(S[k]+s))});
+});
+document.querySelectorAll(".seg").forEach(function(g){var k=g.getAttribute("data-seg");
+g.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){
+S[k]=b.getAttribute("data-v");
+if(k==="shift"){autoNight();$("night").value=S.night}
+paint();save();calc()})})});
+
+$("reset").addEventListener("click",function(){S=Object.assign({},D);S.log={};sel=null;showPay();paint();save();calc()});
+S.log=S.log||{};if(S.shift==="n3"&&!S.st2){S.st="03:00";S.en="12:00"}S.st2=1;if(S.shift!=="cu")S.shift="auto";
+load();showPay();
+$("pp").addEventListener("click",function(){go(-1)});
+$("pn").addEventListener("click",function(){go(1)});
+["st","en"].forEach(function(i){$(i).addEventListener("change",function(){if(!$(i).value)return;S[i]=$(i).value;autoNight();$("night").value=S.night;paint();save();calc()})});
+$("loanEnd").addEventListener("change",function(){if(!$("loanEnd").value)return;S.loanEnd=$("loanEnd").value;save();calc()});
+$("anchor").addEventListener("change",function(){var v=$("anchor").value;if(!v)return;stash();S.anchor=v;sel=null;load();showPay();paint();save();calc()});
+document.body.classList.add("boot");setTimeout(function(){document.body.classList.remove("boot")},1200);
+try{new IntersectionObserver(function(e){$("mini").classList.toggle("on",!e[0].isIntersecting)}).observe($("hero"))}catch(e){}
+paint();calc();
+</script>
+</body>
+</html>
